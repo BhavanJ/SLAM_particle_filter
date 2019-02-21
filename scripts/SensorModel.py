@@ -2,12 +2,8 @@ import numpy as np
 import math
 import time
 from matplotlib import pyplot as plt
-<<<<<<< HEAD
 # from scipy.stats import norm
-=======
-from scipy.stats import norm
 import scipy.integrate as integrate
->>>>>>> 2aac44297c2206d9286df047721d5381f14b3db6
 import pdb
 
 from MapReader import MapReader
@@ -40,12 +36,17 @@ class SensorModel:
         """
         TODO : Initialize Sensor Model parameters here
         """
-<<<<<<< HEAD
         self.occupancy_map = occupancy_map
         self.deg_2_rad = np.pi/180
         self.zmax = 8191
         self.lambda_short = 10
         self.sigma_sq_hit = 10
+
+        self.z_hit = 0.25
+        self.z_short = 0.25
+        self.z_max = 0.25
+        self.z_rand = 0.25
+
 
     def ray_cast(self, pos, angle):
         angle *= self.deg_2_rad
@@ -72,19 +73,16 @@ class SensorModel:
             x = int(x)
             y = int(y)
 
-        vis_flag = 0
+        vis_flag = 1
         if vis_flag:
             finalRayPoints = list(bresenham.bresenham(int(x_initial), int(y_initial), int(x), int(y)))
             visualize_raycast(finalRayPoints)
 
         return dist
 
-=======
         self.zmax = 100
         self.lambda_short = 10
         self.sigma_sq_hit = 10
-
->>>>>>> 2aac44297c2206d9286df047721d5381f14b3db6
 
     def get_Nu(z_tk,z_tk_star):
         return 1.0/math.sqrt(2*math.pi*self.sigma_sq_hit)*math.exp( ((z_tk - z_tk_star)**2)/(-2.0*self.sigma_sq_hit)  )
@@ -117,10 +115,6 @@ class SensorModel:
             return 1.0/self.zmax
         else:
             return 0.0
-<<<<<<< HEAD
-=======
-
->>>>>>> 2aac44297c2206d9286df047721d5381f14b3db6
 
     def beam_range_finder_model(self, z_t1_arr, x_t1):
         """
@@ -128,10 +122,21 @@ class SensorModel:
         param[in] x_t1 : particle state belief [x, y, theta] at time t [world_frame]
         param[out] prob_zt1 : likelihood of a range scan zt1 at time t
         """
+        q = 0
 
-        """
-        TODO : Add your code here
-        """
+        if self.occupancy_map[x_t1[1]/10,x_t1[0]/10] == -1:
+            return 0
+
+        for k in range(0,180,5):
+            z_tk      = z_t1_arr[k]
+            z_tk_star = ray_cast(self, x_t1, k)
+            p_hit     = get_p_hit(z_tk,z_tk_star)
+            p_short   = get_p_short(z_tk,z_tk_star)
+            p_max     = get_p_max(z_tk)
+            p_rand    = get_p_rand(z_tk)
+
+            p = self.z_hit*p_hit + self.z_short*p_short + self.z_max*p_max + self.z_rand*p_rand
+            q += math.log(p,10)
 
         return q    
  
@@ -144,7 +149,7 @@ def main():
     logfile = open(src_path_log, 'r')
 
     sensor_model = SensorModel(occupancy_map)
-    vis_flag = 5
+    vis_flag = 1
 
     """
     Monte Carlo Localization Algorithm : Main Loop
