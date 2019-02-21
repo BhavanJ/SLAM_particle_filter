@@ -2,7 +2,12 @@ import numpy as np
 import math
 import time
 from matplotlib import pyplot as plt
+<<<<<<< HEAD
 # from scipy.stats import norm
+=======
+from scipy.stats import norm
+import scipy.integrate as integrate
+>>>>>>> 2aac44297c2206d9286df047721d5381f14b3db6
 import pdb
 
 from MapReader import MapReader
@@ -35,6 +40,7 @@ class SensorModel:
         """
         TODO : Initialize Sensor Model parameters here
         """
+<<<<<<< HEAD
         self.occupancy_map = occupancy_map
         self.deg_2_rad = np.pi/180
         self.zmax = 8191
@@ -73,6 +79,12 @@ class SensorModel:
 
         return dist
 
+=======
+        self.zmax = 100
+        self.lambda_short = 10
+        self.sigma_sq_hit = 10
+
+>>>>>>> 2aac44297c2206d9286df047721d5381f14b3db6
 
     def get_Nu(z_tk,z_tk_star):
         return 1.0/math.sqrt(2*math.pi*self.sigma_sq_hit)*math.exp( ((z_tk - z_tk_star)**2)/(-2.0*self.sigma_sq_hit)  )
@@ -105,6 +117,10 @@ class SensorModel:
             return 1.0/self.zmax
         else:
             return 0.0
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2aac44297c2206d9286df047721d5381f14b3db6
 
     def beam_range_finder_model(self, z_t1_arr, x_t1):
         """
