@@ -41,7 +41,7 @@ class Resampling:
         param[out] X_bar_resampled : [num_particles x 4] sized array containing [x, y, theta, wt] values for resampled set of particles
         """
 
-        assert np.sum(X_bar[:,-1]) == 1
+        assert np.isclose(np.sum(X_bar[:,-1]), 1)
 
         X_bar_resampled = np.zeros_like(X_bar)
         M = len(X_bar)

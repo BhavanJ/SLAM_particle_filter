@@ -132,6 +132,8 @@ def main():
             else:
                 X_bar_new[m,:] = np.hstack((x_t1, X_bar[m,3]))
         
+        X_bar_new[:,-1] /= np.sum(X_bar_new[:, -1])
+        # pdb.set_trace()
         X_bar = X_bar_new
         u_t0 = u_t1
 

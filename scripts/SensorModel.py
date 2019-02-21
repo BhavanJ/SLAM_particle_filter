@@ -54,8 +54,10 @@ class SensorModel:
         x = (pos[0]/10)
         y = (pos[1]/10)
 
-        x += int(25*np.cos(pos[2]))
-        y += int(25*np.sin(pos[2]))
+        x += (25*np.cos(pos[2]))
+        x = int(x)
+        y += (25*np.sin(pos[2]))
+        y = int(y)
 
         x_initial, y_initial = x, y
 
@@ -63,6 +65,10 @@ class SensorModel:
 
         stride = 5
         dist = self.zmax
+        try:
+            self.occupancy_map[y,x] != -1
+        except:
+            pdb.set_trace()
         while (self.occupancy_map[y,x] != -1):
             if (self.occupancy_map[y,x] > 0.9):
                 dist = min(((x - x_initial)**2 + (y - y_initial)**2)**0.5, max_dist)
@@ -73,7 +79,7 @@ class SensorModel:
             x = int(x)
             y = int(y)
 
-        vis_flag = 1
+        vis_flag = 0
         if vis_flag:
             finalRayPoints = list(bresenham.bresenham(int(x_initial), int(y_initial), int(x), int(y)))
             visualize_raycast(finalRayPoints)
@@ -84,33 +90,36 @@ class SensorModel:
         self.lambda_short = 10
         self.sigma_sq_hit = 10
 
-    def get_Nu(z_tk,z_tk_star):
+    def get_Nu(self,z_tk,z_tk_star):
         return 1.0/math.sqrt(2*math.pi*self.sigma_sq_hit)*math.exp( ((z_tk - z_tk_star)**2)/(-2.0*self.sigma_sq_hit)  )
 
-    def get_p_hit(z_tk,z_tk_star):
+    def get_p_hit(self,z_tk,z_tk_star):
 
         if 0 <= z_tk <= self.zmax:
             Nu = self.get_Nu(z_tk,z_tk_star)
-            eta = 1.0/(integrate.quad(lambda x: self.get_Nu(x,z_tk_star), 0, self.zmax))
+
+            # pdb.set_trace()
+            # o =integrate.quad(lambda x: self.get_Nu(x,z_tk_star), 0, self.zmax) 
+            eta = 1.0/(1e-11 + integrate.quad(lambda x: self.get_Nu(x,z_tk_star), 0, self.zmax)[0])
             return eta*Nu
         else:
             return 0.0
 
-    def get_p_short(z_tk,z_tk_star):
+    def get_p_short(self,z_tk,z_tk_star):
         if 0 <= z_tk <= z_tk_star:
             eta = 1.0/(1.0 - math.exp(-1.0*self.lambda_short*z_tk_star) )
             return eta*(self.lambda_short)*math.exp(-1.0*self.lambda_short*z_tk)
         else:
             return 0.0
 
-    def get_p_max(z_tk):
+    def get_p_max(self,z_tk):
         #TODO:BJ Verify
         if z_tk == self.zmax:
             return 1.0
         else:
             return 0.0
 
-    def get_p_rand(z_tk):
+    def get_p_rand(self,z_tk):
         if 0<= z_tk < self.zmax:
             return 1.0/self.zmax
         else:
@@ -124,16 +133,20 @@ class SensorModel:
         """
         q = 0
 
-        if self.occupancy_map[x_t1[1]/10,x_t1[0]/10] == -1:
+#         try: self.occupancy_map[x_t1[1]/10,x_t1[0]/10] == -1
+        # except:
+#             pdb.set_trace()
+ 
+        if self.occupancy_map[int(x_t1[1]/10),int(x_t1[0]/10)] == -1:
             return 0
 
         for k in range(0,180,5):
             z_tk      = z_t1_arr[k]
-            z_tk_star = ray_cast(self, x_t1, k)
-            p_hit     = get_p_hit(z_tk,z_tk_star)
-            p_short   = get_p_short(z_tk,z_tk_star)
-            p_max     = get_p_max(z_tk)
-            p_rand    = get_p_rand(z_tk)
+            z_tk_star = self.ray_cast(x_t1, k)
+            p_hit     = self.get_p_hit(z_tk,z_tk_star)
+            p_short   = self.get_p_short(z_tk,z_tk_star)
+            p_max     = self.get_p_max(z_tk)
+            p_rand    = self.get_p_rand(z_tk)
 
             p = self.z_hit*p_hit + self.z_short*p_short + self.z_max*p_max + self.z_rand*p_rand
             q += math.log(p,10)
