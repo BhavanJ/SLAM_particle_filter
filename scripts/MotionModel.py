@@ -3,6 +3,9 @@ import numpy as np
 import math
 import random
 
+np.random.seed(4)
+
+
 # Assign random seed when testing
 
 # How to choose alphas. 

@@ -11,6 +11,8 @@ from matplotlib import pyplot as plt
 from matplotlib import figure as fig
 import time
 
+from multiprocessing import Pool
+from functools import partial
 
 np.random.seed(4)
 
@@ -132,24 +134,51 @@ def main():
 
         X_bar_new = np.zeros( (num_particles,4), dtype=np.float64)
         u_t1 = odometry_robot
+
+        x_t1_list = []
         for m in range(0, num_particles):
 
             """
             MOTION MODEL
             """
             x_t0 = X_bar[m, 0:3]
-            x_t1 = motion_model.update(u_t0, u_t1, x_t0)
+            # x_t1 = motion_model.update(u_t0, u_t1, x_t0)
+            x_t1_list.append(motion_model.update(u_t0, u_t1, x_t0))
 
-            """
-            SENSOR MODEL
-            """
-            if (meas_type == "L"):
-                z_t = ranges
-                w_t = sensor_model.beam_range_finder_model(z_t, x_t1)
-                # w_t = 1/num_particles
-                X_bar_new[m,:] = np.hstack((x_t1, w_t))
-            else:
-                X_bar_new[m,:] = np.hstack((x_t1, X_bar[m,3]))
+
+        if (meas_type == "L"):
+            
+            pool = Pool(processes=8)
+            beam_partial=partial(sensor_model.beam_range_finder_model,ranges) 
+            pdb.set_trace()
+            w_t_list = pool.map(beam_partial, x_t1_list)            
+            pool.close() 
+            pool.join() 
+            pdb.set_trace()
+            X_bar_new = np.hstack((np.asarray(x_t1_list), w_t_list))
+
+        else:
+            # pdb.set_trace()
+            temp = np.expand_dims(X_bar[:,3], axis=1)
+            X_bar_new = np.hstack((np.asarray(x_t1_list), temp))
+
+        # def sensor_parallel(x_t1,ranges) 
+
+        #     """
+        #     SENSOR MODEL
+        #     """
+        #     # if (meas_type == "L"):
+        #         z_t = ranges
+        #         w_t = sensor_model.beam_range_finder_model(z_t, x_t1)
+        #         ## w_t = 1/num_particles
+        #         # X_bar_new[m,:] = np.hstack((x_t1, w_t))
+
+        #         return
+        #     # else:
+        #     #     X_bar_new[m,:] = np.hstack((x_t1, X_bar[m,3]))
+
+        #         # return
+
         
         X_bar_new[:,-1] /= np.sum(X_bar_new[:, -1])
         # pdb.set_trace()

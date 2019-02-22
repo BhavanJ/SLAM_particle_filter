@@ -2,6 +2,8 @@ import numpy as np
 import random
 import pdb
 
+np.random.seed(4)
+
 class Resampling:
 
     """

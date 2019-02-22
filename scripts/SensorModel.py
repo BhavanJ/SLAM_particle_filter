@@ -9,6 +9,8 @@ import pdb
 from MapReader import MapReader
 import bresenham
 
+np.random.seed(4)
+
 def visualize_map(occupancy_map):
     fig = plt.figure()
     # plt.switch_backend('TkAgg')
