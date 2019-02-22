@@ -88,12 +88,8 @@ class SensorModel:
 
         return dist
 
-        self.zmax = 100
-        self.lambda_short = 10
-        self.sigma_sq_hit = 10
-
     def get_Nu(self,z_tk,z_tk_star):
-        return 1.0/math.sqrt(2*math.pi*self.sigma_sq_hit)*math.exp( ((z_tk - z_tk_star)**2)/(-2.0*self.sigma_sq_hit)  )
+        return (1.0/math.sqrt(2*math.pi*self.sigma_sq_hit))*math.exp( ((z_tk - z_tk_star)**2)/(-2.0*self.sigma_sq_hit)  )
 
     def get_p_hit(self,z_tk,z_tk_star):
 
