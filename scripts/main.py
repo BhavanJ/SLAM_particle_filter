@@ -12,7 +12,7 @@ from matplotlib import figure as fig
 import time
 
 
-np.random.seed(4)
+# np.random.seed(4)
 
 
 def visualize_map(occupancy_map):
@@ -85,7 +85,7 @@ def main():
     Initialize Parameters
     """
     src_path_map = '../data/map/wean.dat'
-    src_path_log = '../data/log/robotdata1.log'
+    src_path_log = '../data/log/robotdata2.log'
 
     map_obj = MapReader(src_path_map)
     occupancy_map = map_obj.get_map() 
@@ -107,7 +107,12 @@ def main():
         visualize_map(occupancy_map)
 
     first_time_idx = True
+    indx_iter = 0
     for time_idx, line in enumerate(logfile):
+        indx_iter += 1
+
+        if indx_iter % 2 == 0:
+             continue
 
         # Read a single 'line' from the log file (can be either odometry or laser measurement)
         meas_type = line[0] # L : laser scan measurement, O : odometry measurement

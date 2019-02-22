@@ -9,7 +9,7 @@ import pdb
 from MapReader import MapReader
 import bresenham
 
-np.random.seed(4)
+# np.random.seed(4)
 
 def visualize_map(occupancy_map):
     fig = plt.figure()
