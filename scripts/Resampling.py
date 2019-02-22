@@ -40,8 +40,10 @@ class Resampling:
         param[in] X_bar : [num_particles x 4] sized array containing [x, y, theta, wt] values for all particles
         param[out] X_bar_resampled : [num_particles x 4] sized array containing [x, y, theta, wt] values for resampled set of particles
         """
-
-        assert np.isclose(np.sum(X_bar[:,-1]), 1)
+        
+        try: assert np.isclose(np.sum(X_bar[:,-1]), 1, rtol=0.001 )
+        except: pdb.set_trace()
+        assert np.isclose(np.sum(X_bar[:,-1]), 1, rtol=0.001 )
 
         X_bar_resampled = np.zeros_like(X_bar)
         M = len(X_bar)
@@ -61,7 +63,37 @@ class Resampling:
 
 
         return X_bar_resampled
+    
+    def low_variance_sampler_new(self, X_bar):
 
+        """
+        param[in] X_bar : [num_particles x 4] sized array containing [x, y, theta, wt] values for all particles
+        param[out] X_bar_resampled : [num_particles x 4] sized array containing [x, y, theta, wt] values for resampled set of particles
+        """
+
+        X_bar_resampled = np.zeros_like(X_bar)
+        M = len(X_bar)
+
+        X_state = X_bar[:,0:3]
+        wt = X_bar[:,3]
+
+        w_max = max(wt)
+        idx = random.randint(0,M-1)
+        beta = 0.0
+
+        for m in range(M):
+            beta = beta + random.random()*w_max*2
+            while(wt[idx] < beta):
+                beta = beta - wt[idx]
+                if (idx+1 == M):
+                    idx = 0
+                else:
+                    idx += 1
+
+            X_bar_resampled[m,:] = X_bar[idx,:]
+            X_bar_resampled[m,-1] = 1.0/M 
+
+        return X_bar_resampled
 if __name__ == "__main__":
 
     # X_bar = np.array([[1,1,1,0.2],

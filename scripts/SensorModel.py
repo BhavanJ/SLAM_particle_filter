@@ -37,16 +37,25 @@ class SensorModel:
         TODO : Initialize Sensor Model parameters here
         """
         self.occupancy_map = occupancy_map
+        # self.deg_2_rad = np.pi/180
+        # self.zmax = 8191
+        # self.lambda_short = 10
+        # self.sigma_sq_hit = 10
+
+        # self.z_hit = 0.25
+        # self.z_short = 0.25
+        # self.z_max = 0.25
+        # self.z_rand = 0.25
+
         self.deg_2_rad = np.pi/180
         self.zmax = 8191
-        self.lambda_short = 10
-        self.sigma_sq_hit = 10
+        self.lambda_short =  0.001
+        self.sigma_sq_hit = 700
 
-        self.z_hit = 0.25
-        self.z_short = 0.25
-        self.z_max = 0.25
-        self.z_rand = 0.25
-
+        self.z_hit = 0.8
+        self.z_short = 0.133
+        self.z_max = 0.000325
+        self.z_rand = 0.133
 
     def ray_cast(self, pos, angle):
         angle *= self.deg_2_rad

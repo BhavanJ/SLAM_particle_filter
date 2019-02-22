@@ -22,7 +22,7 @@ def visualize_timestep(X_bar, tstep):
     x_locs = X_bar[:,0]/10.0
     y_locs = X_bar[:,1]/10.0
     scat = plt.scatter(x_locs, y_locs, c='r', marker='o')
-    plt.pause(0.00001)
+    plt.pause(0.0001)
     scat.remove()
 
 def init_particles_random(num_particles, occupancy_map):
@@ -47,7 +47,22 @@ def init_particles_freespace(num_particles, occupancy_map):
     """
     TODO : Add your code here
     """ 
+    free_space = (occupancy_map**2 < 0.01) 
+    linear_indices = np.ravel_multi_index(np.where(free_space), np.shape(free_space))
+    pts = np.random.choice(linear_indices, num_particles)
+    y0_vals ,x0_vals = np.unravel_index(pts,np.shape(free_space))
+    y0_vals = np.expand_dims(y0_vals, axis = 1)*10
+    x0_vals = np.expand_dims(x0_vals, axis = 1)*10
 
+    theta0_vals = np.random.uniform( -3.14, 3.14, (num_particles, 1) )
+    
+    w0_vals = np.ones( (num_particles,1), dtype=np.float64)
+    w0_vals = w0_vals / num_particles
+
+    # pdb.set_trace()
+    X_bar_init = np.hstack((x0_vals,y0_vals,theta0_vals,w0_vals))
+    # visualize_map(occupancy_map)
+    # visualize_timestep(X_bar_init, 0)
     return X_bar_init
 
 def main():
@@ -66,7 +81,7 @@ def main():
     Initialize Parameters
     """
     src_path_map = '../data/map/wean.dat'
-    src_path_log = '../data/log/robotdata1.log'
+    src_path_log = '../data/log/robotdata2.log'
 
     map_obj = MapReader(src_path_map)
     occupancy_map = map_obj.get_map() 
@@ -77,7 +92,7 @@ def main():
     resampler = Resampling()
 
     num_particles = 500
-    X_bar = init_particles_random(num_particles, occupancy_map)
+    X_bar = init_particles_freespace(num_particles, occupancy_map)
 
     vis_flag = 1
 
@@ -103,6 +118,8 @@ def main():
         if (meas_type == "L"):
              odometry_laser = meas_vals[3:6] # [x, y, theta] coordinates of laser in odometry frame
              ranges = meas_vals[6:-1] # 180 range measurement values from single laser scan
+        # else:
+            # continue
         
         print "Processing time step " + str(time_idx) + " at time " + str(time_stamp) + "s"
 
@@ -132,6 +149,8 @@ def main():
             else:
                 X_bar_new[m,:] = np.hstack((x_t1, X_bar[m,3]))
         
+        # if (meas_type == "L"):
+        # pdb.set_trace()
         X_bar_new[:,-1] /= np.sum(X_bar_new[:, -1])
         # pdb.set_trace()
         X_bar = X_bar_new
@@ -140,7 +159,7 @@ def main():
         """
         RESAMPLING
         """
-        X_bar = resampler.low_variance_sampler(X_bar)
+        X_bar = resampler.low_variance_sampler_new(X_bar)
 
         if vis_flag:
             visualize_timestep(X_bar, time_idx)
