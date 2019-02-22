@@ -22,8 +22,9 @@ class MotionModel:
         """
         TODO : Initialize Motion Model parameters here
         """
-        a = 0. 
-        self.alphas = np.array([a,a,a,a,a,a])
+        a_t = 0.001
+        a_a = 0.01 
+        self.alphas = np.array([a_t,a_t,a_a,a_a])
 
 
     def sample(self, var):

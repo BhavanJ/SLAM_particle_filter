@@ -140,7 +140,7 @@ def main():
         """
         RESAMPLING
         """
-        X_bar = resampler.low_variance_sampler(X_bar)
+        X_bar = resampler.low_variance_sampler_new(X_bar)
 
         if vis_flag:
             visualize_timestep(X_bar, time_idx)
