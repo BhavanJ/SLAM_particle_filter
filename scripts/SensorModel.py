@@ -62,6 +62,7 @@ class SensorModel:
 
         x_initial, y_initial = x, y
 
+        # max_dist = 800
         max_dist = np.max(self.occupancy_map.shape)
 
         stride = 5
@@ -101,8 +102,11 @@ class SensorModel:
 
             # pdb.set_trace()
             # o =integrate.quad(lambda x: self.get_Nu(x,z_tk_star), 0, self.zmax) 
-            eta = 1.0/(1e-11 + integrate.quad(lambda x: self.get_Nu(x,z_tk_star), 0, self.zmax)[0])
-            return eta*Nu
+            # eta = 2*math.pi*self.sigma_sq_hit*self.sigma_sq_hit
+            # eta = eta**0.5
+            # eta = 1.0/eta
+            # eta = 1.0/(1e-11 + integrate.quad(lambda x: self.get_Nu(x,z_tk_star), 0, self.zmax)[0])
+            return Nu
         else:
             return 0.0
 
