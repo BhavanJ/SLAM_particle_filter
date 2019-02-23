@@ -40,14 +40,20 @@ class SensorModel:
         """
         self.occupancy_map = occupancy_map
         self.deg_2_rad = np.pi/180
-        self.zmax = 8191
-        self.lambda_short =  0.001
-        self.sigma_sq_hit = 700
+        self.zmax = 8000
+        self.lambda_short =  0.02
+        self.sigma_sq_hit = 80*3.
 
-        self.z_hit = 0.8
-        self.z_short = 0.133
-        self.z_max = 0.000325
-        self.z_rand = 0.133
+        self.z_hit = 9.5
+        self.z_short = 10.
+        self.z_max = 1.
+        self.z_rand = 40.
+
+        self.z_sum = self.z_hit + self.z_short + self.z_max + self.z_rand
+        self.z_hit /= self.z_sum
+        self.z_max /= self.z_sum
+        self.z_rand /= self.z_sum
+        self.z_short /= self.z_sum
 
     def ray_cast(self, pos, angle):
         angle *= self.deg_2_rad
@@ -66,7 +72,7 @@ class SensorModel:
         max_dist = np.max(self.occupancy_map.shape)
 
         stride = 5
-        dist = self.zmax
+        dist = self.zmax/10
         try:
             self.occupancy_map[y,x] != -1
         except:
@@ -141,7 +147,7 @@ class SensorModel:
         if self.occupancy_map[int(x_t1[1]/10),int(x_t1[0]/10)] == -1:
             return 0
 
-        for k in range(0,180,5):
+        for k in range(0,180,20):
             z_tk      = z_t1_arr[k]
             z_tk_star = self.ray_cast(x_t1, k)
             p_hit     = self.get_p_hit(z_tk,z_tk_star)
@@ -149,14 +155,15 @@ class SensorModel:
             p_max     = self.get_p_max(z_tk)
             p_rand    = self.get_p_rand(z_tk)
 
-            p = self.z_hit*p_hit + self.z_short*p_short + self.z_max*p_max + self.z_rand*p_rand
-            q += math.log(p,10)
+            p = self.z_hit*p_hit + self.z_short*p_short + self.z_max*p_max + self.z_rand*p_rand + 1e-10
+            try: q += math.log(p,10)
+            except: pdb.set_trace()
 
         return q    
  
 def main():
     src_path_map = '../data/map/wean.dat'
-    src_path_log = '../data/log/robotdata1.log'
+    src_path_log = '../data/log/robotdata2.log'
 
     map_obj = MapReader(src_path_map)
     occupancy_map = map_obj.get_map() 

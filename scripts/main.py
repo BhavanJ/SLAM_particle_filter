@@ -51,7 +51,7 @@ def init_particles_freespace(num_particles, occupancy_map):
     """
     TODO : Add your code here
     """ 
-    free_space = (occupancy_map**2 < 0.01) 
+    free_space = (occupancy_map == 0) 
     linear_indices = np.ravel_multi_index(np.where(free_space), np.shape(free_space))
     pts = np.random.choice(linear_indices, num_particles)
     y0_vals ,x0_vals = np.unravel_index(pts,np.shape(free_space))
@@ -85,7 +85,7 @@ def main():
     Initialize Parameters
     """
     src_path_map = '../data/map/wean.dat'
-    src_path_log = '../data/log/robotdata2.log'
+    src_path_log = '../data/log/robotdata1.log'
 
     map_obj = MapReader(src_path_map)
     occupancy_map = map_obj.get_map() 
@@ -111,8 +111,8 @@ def main():
     for time_idx, line in enumerate(logfile):
         indx_iter += 1
 
-        if indx_iter % 2 == 0:
-             continue
+        # if indx_iter % 2 == 0:
+             # continue
 
         # Read a single 'line' from the log file (can be either odometry or laser measurement)
         meas_type = line[0] # L : laser scan measurement, O : odometry measurement

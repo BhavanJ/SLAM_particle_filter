@@ -25,8 +25,8 @@ class MotionModel:
         """
         TODO : Initialize Motion Model parameters here
         """
-        a_t = 0.0
-        a_a = 0.0 
+        a_t = 0.1*0.6
+        a_a = 0.2 *0.6
         self.alphas = np.array([a_t,a_t,a_a,a_a])
 
 
@@ -34,7 +34,7 @@ class MotionModel:
         """
         Randomly sample from zero mean gaussian with variance var
         """
-        return np.random.normal(00., var) 
+        return np.random.normal(0.0, var) 
 
     def truncate_angle(self, theta):
         """
